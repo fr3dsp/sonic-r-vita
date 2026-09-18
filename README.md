@@ -2,7 +2,7 @@
 
 Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back. You can manage slop ports and everything else but can't open a pull request against upstream? Looking at you Android port / "nEt PlAy EnHaNcEmEnTs". Fragmenting this and I barely put it out to the world, shitty.
 
-This will be my final public repo project as it has proven to be very unrewarding. I put lots of time and money into this and everyone takes it to run with it without contributing back, and even worse, telling me I'm a legend because they're making money selling bootlegs to dumbasses who buy pirate Dreamcast shit.
+This will be my final public repo project as it has proven to be very unrewarding. I put lots of time and money into this and everyone takes it to run with it without contributing back, and even worse, telling me I'm a legend because they're making undeserved money off my effort selling bootlegs to dumbasses who buy pirate Dreamcast shit.
 
 Here you will find a reimplementation of *Sonic R* (the 1998 Sega PC release),
 decompiled from the original executable and rebuilt as modern, portable C.
