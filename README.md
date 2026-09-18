@@ -15,7 +15,7 @@ x86-to-C translation done with the use of Ghidra and Claude Code
 This has been extensively tested and validated against live WinDbg sessions running 1998 SONICR.EXE,
 along with playtesting by many *detail-oriented* Sonic R fans (special thanks to Mittens, Tongara and Neo.charmy).
 
-We ran out of identifiable differences in gameplay behavior that could be attributed to anything other than switching from 80-bit x87 floating point to IEEE floating point math (or using modified game data).
+We ran out of identifiable differences in single-player gameplay behavior that could be attributed to anything other than switching from 80-bit x87 floating point to IEEE floating point math (or using modified game data).
 
 If this use of AI is in conflict with your personal beliefs or values, please leave this page now. Thanks.
 
