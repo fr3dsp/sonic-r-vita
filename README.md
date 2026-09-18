@@ -1,5 +1,7 @@
 # Sonic R
 
+Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back for fucks sake. Looking at you Android port / "nEt PlAy EnHaNcEmEnTs".
+
 Here you will find a reimplementation of *Sonic R* (the 1998 Sega PC release),
 decompiled from the original executable and rebuilt as modern, portable C.
 It runs natively on **Windows, macOS, and Linux** (via SDL2) and on the **Sega Dreamcast**
