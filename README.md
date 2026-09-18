@@ -1,6 +1,6 @@
 # Sonic R
 
-Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back. Looking at you Android port / "nEt PlAy EnHaNcEmEnTs". Fragmenting this and I barely put it out to the world, shitty.
+Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back. You can manage slop ports and everything else but can't open a pull request against upstream? Looking at you Android port / "nEt PlAy EnHaNcEmEnTs". Fragmenting this and I barely put it out to the world, shitty.
 
 This will be my final public repo project as it has proven to be very unrewarding.
 
