@@ -1,6 +1,6 @@
 # Sonic R
 
-Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back for fucks sake. Looking at you Android port / "nEt PlAy EnHaNcEmEnTs".
+Hey guys, if you're going to make incompatible forks, what the fuck? This is open source to share with the world, try contributing back. Looking at you Android port / "nEt PlAy EnHaNcEmEnTs". Fragmenting this and I barely put it out to the world, shitty.
 
 Here you will find a reimplementation of *Sonic R* (the 1998 Sega PC release),
 decompiled from the original executable and rebuilt as modern, portable C.
