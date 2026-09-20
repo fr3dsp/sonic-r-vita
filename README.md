@@ -1,3 +1,36 @@
+# Sonic R Vita
+
+A reimplementation of Sonic R for the PlayStation Vita.
+
+## Credits
+
+* FreddySP - PSVita Port
+
+## Setup
+
+* Get the 1998 release files from Sonic R (ux0:data/sonicr)
+
+* Get libshacccg.suprx
+
+##  Building
+
+You'll need [vitasdk](https://github.com/vitasdk) to build this.
+You'll also need these libraries to be built & installed as well:
+
+```
+vitaGL
+vitaShaRK
+libmathneon
+kubridge
+```
+
+After you get everything you can simply run
+```
+cd source/vita
+cmake -B build && cmake --build build
+```
+to build the vpk!
+
 # Sonic R
 
 Here you will find a reimplementation of *Sonic R* (the 1998 Sega PC release),
