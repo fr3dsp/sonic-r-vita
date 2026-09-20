@@ -10,6 +10,8 @@ A reimplementation of Sonic R for the PlayStation Vita.
 
 * Get the 1998 release files from Sonic R (ux0:data/sonicr)
 
+* The VPK bundles the `DATA` folder and copies any of its files missing from ux0:data/sonicr on launch
+
 * Get libshacccg.suprx
 
 ##  Building

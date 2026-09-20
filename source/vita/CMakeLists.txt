@@ -105,6 +105,14 @@ target_link_libraries(${PROJECT_NAME}
 
 vita_create_self(eboot.bin ${PROJECT_NAME})
 
+set(SONICR_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../DATA")
+file(GLOB_RECURSE SONICR_DATA_FILES CONFIGURE_DEPENDS "${SONICR_DATA_DIR}/*")
+set(SONICR_DATA_VPK_FILES "")
+foreach(data_file ${SONICR_DATA_FILES})
+  file(RELATIVE_PATH data_rel "${SONICR_DATA_DIR}" "${data_file}")
+  list(APPEND SONICR_DATA_VPK_FILES FILE "${data_file}" "DATA/${data_rel}")
+endforeach()
+
 vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
@@ -112,4 +120,5 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} eboot.bin
   FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+  ${SONICR_DATA_VPK_FILES}
 )

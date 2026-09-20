@@ -2,6 +2,8 @@
 #include <psp2/kernel/processmgr.h>
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/power.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/stat.h>
 #include <psp2/sysmodule.h>
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
@@ -18,6 +20,8 @@
 #define VITA_SCREEN_W        960
 #define VITA_SCREEN_H        544
 #define VITA_DATA_DIR        "ux0:data/sonicr/"
+#define VITA_BUNDLED_DIR     "app0:DATA"
+#define VITA_INSTALL_DIR     "ux0:data/sonicr"
 #define VITA_NET_MEM_SIZE    (1024 * 1024)
 
 #define MAX_GAMEPADS         4
@@ -220,8 +224,78 @@ void platform_shutdown(void)
     platform_net_shutdown();
 }
 
+static void copy_file(const char *src, const char *dst)
+{
+    FILE *in = fopen(src, "rb");
+    if (in == NULL) {
+        return;
+    }
+    FILE *out = fopen(dst, "wb");
+    if (out == NULL) {
+        fclose(in);
+        return;
+    }
+
+    static unsigned char buf[64 * 1024];
+    size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), in)) > 0) {
+        if (fwrite(buf, 1, n, out) != n) {
+            break;
+        }
+    }
+    fclose(out);
+    fclose(in);
+}
+
+static void install_dir(const char *src, const char *dst)
+{
+    sceIoMkdir(dst, 0777);
+
+    SceUID dir = sceIoDopen(src);
+    if (dir < 0) {
+        return;
+    }
+
+    SceIoDirent ent;
+    memset(&ent, 0, sizeof(ent));
+    while (sceIoDread(dir, &ent) > 0) {
+        char srcPath[256];
+        char dstPath[256];
+        snprintf(srcPath, sizeof(srcPath), "%s/%s", src, ent.d_name);
+        snprintf(dstPath, sizeof(dstPath), "%s/%s", dst, ent.d_name);
+
+        if (SCE_S_ISDIR(ent.d_stat.st_mode)) {
+            install_dir(srcPath, dstPath);
+        }
+        else {
+            FILE *existing = fopen(dstPath, "rb");
+            if (existing != NULL) {
+                fclose(existing);
+            }
+            else {
+                copy_file(srcPath, dstPath);
+            }
+        }
+        memset(&ent, 0, sizeof(ent));
+    }
+    sceIoDclose(dir);
+}
+
+static void install_bundled_data(void)
+{
+    static int done = 0;
+    if (done) {
+        return;
+    }
+    done = 1;
+
+    sceIoMkdir("ux0:data", 0777);
+    install_dir(VITA_BUNDLED_DIR, VITA_INSTALL_DIR);
+}
+
 const char *platform_base_path(void)
 {
+    install_bundled_data();
     return VITA_DATA_DIR;
 }
 
