@@ -59,8 +59,14 @@ int g_glBackingHeight = 480;
 int g_glViewportOffsetX = 0;
 int g_glViewportOffsetY = 0;
 
+void R_RestoreFrameScissor(void);
+
 int R_GetWideExtra(void)
 {
+    if (!g_widescreenEnabled) {
+        return 0;
+    }
+
     int fullW, fullH;
     platform_get_drawable_size(&fullW, &fullH);
     if (fullH <= 0) {
@@ -564,6 +570,7 @@ void BeginFrame(void)
      * alpha test on, scissor off). First R_FlushState() will emit all GL
      * calls needed to match these defaults. */
     R_ResetState();
+    R_RestoreFrameScissor();
 }
 
 /**
@@ -589,11 +596,14 @@ void EndFrame(void)
  * Original: IDirectDrawSurface::Flip().
  * OpenGL: swap the double buffer.
  */
+extern void R_DrawPendingFade(void);
+
 void FlipD3D(void)
 {
 #ifdef SONICR_VITA
     R_VitaFlushBatch();
 #endif
+    R_DrawPendingFade();
     platform_gl_swap();
 }
 
@@ -731,8 +741,7 @@ void ProcessTpageStates(void)                                   /* 0x4323cc */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     /* Enable scissor to confine all future clears to the 4:3 area */
-    R_SetScissor(g_glViewportOffsetX, g_glViewportOffsetY,
-                 g_glBackingWidth, g_glBackingHeight);
+    R_RestoreFrameScissor();
     R_FlushState();
 
     do {
@@ -836,6 +845,17 @@ void CleanupD3DTPages(void)                                /* 0x4332ac */
     ProcessTpageStates();                                       /* 0x4332de */
 }
 
+void R_RestoreFrameScissor(void)
+{
+    if (R_GetWideExtra() > 0) {
+        R_DisableScissor();
+    }
+    else {
+        R_SetScissor(g_glViewportOffsetX, g_glViewportOffsetY,
+                     g_glBackingWidth, g_glBackingHeight);
+    }
+}
+
 /**
  * RenderBackground — 0x00435868 — 189 bytes
  * Binary does IDirect3DViewport2::Clear (solid color fill).
@@ -854,7 +874,7 @@ void RenderBackground(void)
     if (g_introCountdown <= 0xD2 && g_introCountdown >= 0) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        R_DisableScissor();
+        R_RestoreFrameScissor();
         R_FlushState();
         return;
     }
@@ -864,7 +884,7 @@ void RenderBackground(void)
      * Binary: RenderBackground (0x435868) does IDirect3DViewport2::Clear only. */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    R_DisableScissor();
+    R_RestoreFrameScissor();
     R_FlushState();
 }
 

@@ -402,6 +402,7 @@ int LoadGameSettings(void)
         for (int i = 0; i < 8; i++) {
             g_optCfgRomData[i] = buf[24 + i];
         }
+        g_widescreenEnabled = (buf[32] == 0);
     }
     return 1;
 }
@@ -446,6 +447,7 @@ void SaveGameSettings(void)
     for (int i = 0; i < 8; i++) {
         buf[24 + i] = g_optCfgRomData[i];
     }
+    buf[32] = g_widescreenEnabled ? 0 : 1;
 
     bswap32_arr(buf, 40);
     FILE *fp = fOpen("SONICR.INF", "wb");

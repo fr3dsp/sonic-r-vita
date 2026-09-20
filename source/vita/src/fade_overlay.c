@@ -54,6 +54,9 @@ static int s_quadY2;      /* 0x008FB7D0 */
 static int s_quadX3;      /* 0x008FB7E8 */
 static int s_quadY3;      /* 0x008FB7EC */
 
+static float s_fadePending[32][8];
+static int s_fadePendingCount = 0;
+
 /**
  * RenderIrisQuad — FUN_00461824 — 472 bytes
  * Submits one black quad via the immediate-mode render API.
@@ -111,9 +114,7 @@ void RenderFadeOverlay(void)
      * fade-in, causing the iris to run invisibly and complete before
      * the first visible frame. Skip the check. */
 
-    BeginFrame();
-    R_SetTexture(-1);         /* untextured — flat black quads */
-    R_SetTexEnv(R_TEXENV_MODULATE);
+    s_fadePendingCount = 0;
 
     /* Compute fade scale: maps g_fadeLevel (-256..0) to an iris size (0..256) */
     int sign = (g_fadeLevel * -300) >> 31;
@@ -206,17 +207,35 @@ void RenderFadeOverlay(void)
              (s_quadY0 <= g_clipBottom || s_quadY1 <= g_clipBottom ||
               s_quadY2 <= g_clipBottom || s_quadY3 <= g_clipBottom)))
         {
-            RenderIrisQuad(
-                (float)s_quadX0, (float)s_quadY0,
-                (float)s_quadX1, (float)s_quadY1,
-                (float)s_quadX2, (float)s_quadY2,
-                (float)s_quadX3, (float)s_quadY3,
-                1.1f); /* 0x3f8ccccd == 1.1f */
+            float *q = s_fadePending[s_fadePendingCount++];
+            q[0] = (float)s_quadX0; q[1] = (float)s_quadY0;
+            q[2] = (float)s_quadX1; q[3] = (float)s_quadY1;
+            q[4] = (float)s_quadX2; q[5] = (float)s_quadY2;
+            q[6] = (float)s_quadX3; q[7] = (float)s_quadY3;
         }
 
         outerIdx++;
     }
+}
 
+void R_DrawPendingFade(void)
+{
+    if (s_fadePendingCount <= 0) {
+        return;
+    }
+
+    BeginFrame();
+    R_SetTexture(-1);
+    R_SetTexEnv(R_TEXENV_MODULATE);
+    R_SetDepthTest(0);
+    R_SetDepthWrite(0);
+
+    for (int i = 0; i < s_fadePendingCount; i++) {
+        const float *q = s_fadePending[i];
+        RenderIrisQuad(q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], 1.1f);
+    }
+
+    s_fadePendingCount = 0;
     EndFrame();
 }
 

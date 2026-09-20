@@ -524,9 +524,12 @@ void R_EndFrame(void)
  * Present: upload the framebuffer to the GL context once and draw it as a
  * letterboxed 4:3 quad, then swap. The only GL in the backend.
  */
+extern void R_DrawPendingFade(void);
+
 void FlipD3D(void)
 {
     int winW, winH;
+    R_DrawPendingFade();
     platform_get_drawable_size(&winW, &winH);
 
     if (s_fb == NULL || winW <= 0 || winH <= 0) {

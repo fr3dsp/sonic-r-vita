@@ -919,6 +919,7 @@ extern int g_optCfg_46c;
 extern int g_optCfg_470;          /* 0x008fd470 */
 extern int g_optCfg_47c;
 extern int g_resolutionLevel;          /* 0x8fd484 */
+extern int g_widescreenEnabled;
 extern int g_optCfg_48c;
 extern int g_stereoEnabled;       /* 0x008fd494 — Sound page stereo/mono toggle, 1 = stereo */
 extern int g_optCfgRomData[];

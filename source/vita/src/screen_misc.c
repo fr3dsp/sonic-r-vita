@@ -31,6 +31,8 @@ extern void R_SetNoColorKey(int tpage);
 extern void SelectCDTrack(void);
 extern void UpdateCDPlayback(int trackNum);
 extern int DrawGlyphString(int startX, int y, int *glyphIds, int maxCount);
+static int StringToGlyphIds(const char *s, int *out, int maxOut);
+static int MeasureGlyphString(const int *glyphIds, int maxCount);
 extern void SetAllSoundVolumes(void);
 extern void StopCD(void);
 void SetupMenuTexturesD3D(void);
@@ -589,11 +591,13 @@ static void OptionsMenuScrollDown(void)
 }
 
 /* Graphics page (page 3, items 23-30) rows this port does not implement:
- * Resolution (23), Color (24), Interlace (25), Window (27), Track Shading
- * (28) and Alpha Blending (29). The window and pixel format are settled
- * outside the game, and the last two are unconditionally on in the D3D/GL/PVR
- * path. These rows draw empty and ignore left/right; the cursor still stops
- * on them so the page keeps its original eight-row spacing.
+ * Resolution (23), Color (24), Interlace (25), Track Shading (28) and Alpha
+ * Blending (29). The pixel format is settled outside the game, and the last
+ * two are unconditionally on in the D3D/GL/PVR path. These rows draw empty
+ * and ignore left/right; the cursor still stops on them so the page keeps
+ * its original eight-row spacing.
+ * Item 27 ("Window" on PC) is repurposed on this port as the Widescreen
+ * toggle and is not disabled.
  * DELIBERATE DIVERGENCE — all platforms. */
 static int IsDisabledGraphicsItem(int itemIndex)
 {
@@ -601,7 +605,6 @@ static int IsDisabledGraphicsItem(int itemIndex)
         case 23:
         case 24:
         case 25:
-        case 27:
         case 28:
         case 29:
             return 1;
@@ -644,12 +647,21 @@ static void DrawOptionItem(int xPos, int itemIndex)
     /* Draw the item label sprite */
     int dstX = 0x140 - itemW * 2;  /* 320 - width*2 — right-justified */
 
-    /* Quad path — the binary's D3D branch, kept for the GL backend */
-    DrawTexturedQuad(dstX, xPos * 2, 0x43FA0000,  /* depth = 500.0f */
-                     0x100, 0x20,                   /* dstW=256, dstH=32 */
-                     g_uiTexPage + tpageOff,
-                     srcX, srcY, 0x80, 0x10,        /* src: 128x16 */
-                     VERTEX_WHITE);
+    if (itemIndex == 27) {
+        DrawTexturedQuad(dstX, xPos * 2, 0x43FA0000,
+                         0x100, 0x20,
+                         g_uiTexPage + 4,
+                         0, 0, 0x80, 0x10,
+                         VERTEX_WHITE);
+    }
+    else {
+        /* Quad path — the binary's D3D branch, kept for the GL backend */
+        DrawTexturedQuad(dstX, xPos * 2, 0x43FA0000,  /* depth = 500.0f */
+                         0x100, 0x20,                   /* dstW=256, dstH=32 */
+                         g_uiTexPage + tpageOff,
+                         srcX, srcY, 0x80, 0x10,        /* src: 128x16 */
+                         VERTEX_WHITE);
+    }
 
     /* Value rendering — only for items with hasValue != 0 */
     if (hasValue == 0) {
@@ -753,10 +765,10 @@ static void DrawOptionItem(int xPos, int itemIndex)
                 uvBaseY = 0x30;
                 valueTpage = 2;
                 break;
-            case 19: /* item 27: resolution level (0-4) */
-                value = g_resolutionLevel;
-                uvBaseY = 0x80;
-                valueTpage = 2;
+            case 19: /* item 27: widescreen toggle */
+                value = g_widescreenEnabled;
+                uvBaseX = 0xC0;
+                uvBaseY = 0xE0;
                 break;
             case 20: /* item 28: DirectDraw-era toggle (Track Shading) */
                 /* Vestigial in our GL/PVR path — the effect is always on.
@@ -1143,6 +1155,7 @@ int OptionsMenuScreen(void)
     LoadTPageRGB(g_uiTexPage + 1, PATH_MENU_OPTIONS0);
     LoadTPageRGB(g_uiTexPage + 2, PATH_MENU_OPTIONS1);
     LoadTPageRGB(g_uiTexPage + 3, PATH_MENU_CONTROLS);
+    LoadTPageRGB(g_uiTexPage + 4, PATH_MENU_WIDESCREEN);
     /* Restore state 4 for loaded tpages (same pattern as MainMenuScreen) */
     for (int tp = 0; tp < 52; tp++) {
         if (g_tpageStateArray[tp] == 6 && g_tpagePixelBuf[tp] != NULL) {
@@ -1294,8 +1307,8 @@ int OptionsMenuScreen(void)
             if (direction != 0) {
                 int item = g_optMenuCursor;
 
-                /* Blanked Graphics rows take no input — item 27 in particular
-                 * still has a live handler below (case 19, g_resolutionLevel). */
+                /* Blanked Graphics rows take no input. Item 27 is not blanked
+                 * — see case 19 below (g_widescreenEnabled). */
                 if (IsDisabledGraphicsItem(item)) {
                     item = -1;
                 }
@@ -1500,15 +1513,15 @@ int OptionsMenuScreen(void)
                             lastTime = timeGetTime() / 1000;
                             break;
                         }
-                        case 19: { /* item 27: g_resolutionLevel (0-4) */
-                            int v = g_resolutionLevel + direction;
+                        case 19: { /* item 27: g_widescreenEnabled (0-1) */
+                            int v = g_widescreenEnabled + direction;
                             if (v < 0) {
                                 v = 0;
                             }
-                            if (v >= 5) {
-                                v = 4;
+                            if (v >= 2) {
+                                v = 1;
                             }
-                            g_resolutionLevel = v;
+                            g_widescreenEnabled = v;
                             PlaySoundEffect(1, 0, 0);
                             lastTime = timeGetTime() / 1000;
                             break;

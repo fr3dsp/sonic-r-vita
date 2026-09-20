@@ -54,6 +54,7 @@ extern void RenderEnvMappedModel3D(int xOff, int yOff, int zBase,
 extern void R_ClearDepth(void);
 extern void R_WideClipOn(int *cfg);
 extern void R_WideClipOff(int *cfg);
+extern void R_RestoreFrameScissor(void);
 extern void RenderHiddenSubEntry(int worldX, int worldZ, int worldY);
 extern void DrawMinimapWidget(char *vpPlayer);
 extern int QueryTerrainHeight(int worldX, int worldZ, int minY);
@@ -706,7 +707,7 @@ void RenderHUD(void)
         }
 
         if (g_numHumans > 1) {
-            R_DisableScissor();
+            R_RestoreFrameScissor();
             R_FlushState();
         }
         g_scissorEdge = SCISSOR_NONE;

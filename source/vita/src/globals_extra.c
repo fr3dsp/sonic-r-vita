@@ -312,7 +312,7 @@ int g_charSelDataBlock[26] = {          /* 0x00502648 */
 
 /* Network */
 int g_netSyncEstablished;
-int g_networkAvailable = 1;             /* 0x00689B00 */
+int g_networkAvailable = 0;             /* 0x00689B00 */
 
 /* Previous camera positions (for weather particles) */
 int g_prevPrevPosX;
@@ -898,6 +898,7 @@ int g_dispHalfHeight;               /* 0x006E9884 */
 int g_dispCenterX;                  /* 0x006E98A0 — screenWidth / 2 */
 int g_dispCenterY;                  /* 0x006E98A4 — screenHeight / 2 */
 int g_resolutionLevel = 4;          /* 0x008FD484 — 0..4, default max */
+int g_widescreenEnabled = 1;
 int g_splitScreenMode;              /* 0x008FD45C — 0=horiz, 1=vert split */
 
 /* Game options/config block — 0x8fd444 through 0x8fd4c0.
