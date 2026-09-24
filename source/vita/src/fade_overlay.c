@@ -20,6 +20,8 @@
 #include "r_state.h"
 #include "r_draw.h"
 
+extern int R_GetWideExtra(void);
+
 /* Iris vertex table — DAT_004fc008
  * 64 pairs of (X, Y) ints. First 32 = inner ring, next 32 = outer ring.
  * Extracted from SONICR.EXE .data section. */
@@ -183,6 +185,10 @@ void RenderFadeOverlay(void)
     int innerOff = 0;
     int outerOff = 32;
 
+    int wideExtra = R_GetWideExtra();
+    int clipLeft = g_clipLeft - wideExtra;
+    int clipRight = g_clipRight + wideExtra;
+
     for (segIdx = 0; segIdx < 32; segIdx++) {
         s_quadX0 = screenX[innerOff + segIdx];
         s_quadY0 = screenY[innerOff + segIdx];
@@ -198,12 +204,12 @@ void RenderFadeOverlay(void)
         s_quadY3 = screenY[innerNext];
 
         /* Viewport clip check — skip if entirely outside screen */
-        if (((g_clipLeft <= s_quadX0 || g_clipLeft <= s_quadX1 ||
-              g_clipLeft <= s_quadX2 || g_clipLeft <= s_quadX3) &&
+        if (((clipLeft <= s_quadX0 || clipLeft <= s_quadX1 ||
+              clipLeft <= s_quadX2 || clipLeft <= s_quadX3) &&
              (g_clipTop <= s_quadY0 || g_clipTop <= s_quadY1 ||
               g_clipTop <= s_quadY2 || g_clipTop <= s_quadY3) &&
-             (s_quadX0 <= g_clipRight || s_quadX1 <= g_clipRight ||
-              s_quadX2 <= g_clipRight || s_quadX3 <= g_clipRight) &&
+             (s_quadX0 <= clipRight || s_quadX1 <= clipRight ||
+              s_quadX2 <= clipRight || s_quadX3 <= clipRight) &&
              (s_quadY0 <= g_clipBottom || s_quadY1 <= g_clipBottom ||
               s_quadY2 <= g_clipBottom || s_quadY3 <= g_clipBottom)))
         {
