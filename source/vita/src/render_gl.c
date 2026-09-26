@@ -670,7 +670,7 @@ static int s_wideClipActive = 0;
 
 void R_WideClipOn(int *cfg)
 {
-    if (g_numHumans > 1 || g_resolutionLevel != 4 || cfg == NULL) {
+    if (g_resolutionLevel != 4 || cfg == NULL) {
         return;
     }
 
@@ -679,14 +679,36 @@ void R_WideClipOn(int *cfg)
         return;
     }
 
-    g_clipLeft -= extra;
+    int widened = 0;
+    if (g_clipLeft == 0) {
+        g_clipLeft -= extra;
+        widened = 1;
+    }
+    if (g_clipRight == g_screenWidth - 1) {
+        g_clipRight += extra;
+        widened = 1;
+    }
+    if (!widened) {
+        return;
+    }
     g_clipLeftDouble = g_clipLeft * 2;
-    g_clipRight += extra;
     g_vpClipLeft10 = g_clipLeft << 10;
     g_vpClipRight10 = (g_clipRight + 1) * 0x400 - 1;
     g_vpClipLeft16 = g_clipLeft << 16;
     g_vpClipRight16 = (g_clipRight + 1) * 0x10000 - 1;
     s_wideClipActive = 1;
+
+    if (g_numHumans > 1) {
+        float sx = (float)g_glBackingWidth / (float)g_screenWidth;
+        float sy = (float)g_glBackingHeight / (float)g_screenHeight;
+        int width = g_clipRight - g_clipLeft + 1;
+        int height = g_clipBottom - g_clipTop + 1;
+        R_SetScissor(g_glViewportOffsetX + (int)(g_clipLeft * sx),
+                     g_glViewportOffsetY + (int)((g_screenHeight - g_clipBottom - 1) * sy),
+                     (int)(width * sx),
+                     (int)(height * sy));
+        R_FlushState();
+    }
 }
 
 void R_WideClipOff(int *cfg)
@@ -694,6 +716,15 @@ void R_WideClipOff(int *cfg)
     if (s_wideClipActive) {
         s_wideClipActive = 0;
         SetViewportFromConfig(cfg);
+        if (g_numHumans > 1 && cfg != NULL) {
+            float sx = (float)g_glBackingWidth / (float)g_screenWidth;
+            float sy = (float)g_glBackingHeight / (float)g_screenHeight;
+            R_SetScissor(g_glViewportOffsetX + (int)(cfg[0] * sx),
+                         g_glViewportOffsetY + (int)((g_screenHeight - cfg[3] - 1) * sy),
+                         (int)(cfg[9] * sx),
+                         (int)(cfg[10] * sy));
+            R_FlushState();
+        }
     }
 }
 
