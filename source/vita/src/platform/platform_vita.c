@@ -89,9 +89,11 @@ static int enumerate_pads(PadSlot *out)
         memset(&info, 0, sizeof(info));
     }
 
-    out[count].port = 0;
-    out[count].type = info.port[0] ? info.port[0] : SCE_CTRL_TYPE_PHY;
-    count++;
+    if (info.port[0] != SCE_CTRL_TYPE_VIRT) {
+        out[count].port = 0;
+        out[count].type = info.port[0] ? info.port[0] : SCE_CTRL_TYPE_PHY;
+        count++;
+    }
 
     for (int p = 1; p < MAX_CTRL_PORTS && count < MAX_GAMEPADS; p++) {
         if (info.port[p] != SCE_CTRL_TYPE_UNPAIRED) {

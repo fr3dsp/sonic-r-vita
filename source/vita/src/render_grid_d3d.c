@@ -307,7 +307,11 @@ static RenderVertex BuildGridClipVertex(const GridClipVert *v, const GridProject
     RenderVertex rv;
     float z = v->z;
     float zBiased = z + GRID_DEPTH_BIAS;
+#ifdef SONICR_DC
     float invZ = reciprocal(zBiased);
+#else
+    float invZ = reciprocal(z);
+#endif
     rv.sx = gp->centerXf + v->camX * gp->projScaleXf * invZ;
     rv.sy = gp->centerYf - v->camY * gp->projScaleYf * invZ;
     rv.sz = zBiased * reciprocal(gp->maxZ);
